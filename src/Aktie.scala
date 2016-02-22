@@ -25,10 +25,13 @@ class Aktie(
   val gewinnrevisionen: Double,
   val kursVs6Monate: Double,
   val kursVs12Monate: Double,
-  val momentum: Double,
+  val momentum: Int,
 
   // Wachstum
   val gewinnwachstum: Double,
+
+  // Dividendenrendite
+  val dividendenrendite: Double,
 
   // Scorewert
   var score: Int
@@ -39,7 +42,8 @@ class Aktie(
     "Qualität (RoE, EBIT, EK): "+roe+" (>20-10<) | "+ebitMarge+" (>12-6<) | "+ekQuote+" (>25-15<) | "+
     "Bewertung (KGV5, KGV): "+kgv5Jahre+" (>12-16<) | "+kgvAktuell+" (>12-16<) | "+
     "Momentum (Gewinnrev, Kurs6, Kurs12, Moment): "+gewinnrevisionen+" | "+kursVs6Monate+" | "+kursVs12Monate+" | "+momentum+" | "+
-    "Wachstum (EPS AJ, EPS NJ, Gewinnwachstum): "+epsAJ+" | "+epsNJ+" | "+gewinnwachstum+"\n"
+    "Wachstum (EPS AJ, EPS NJ, Gewinnwachstum): "+epsAJ+" | "+epsNJ+" | "+gewinnwachstum+" | "+
+    "Dividendenrendite: "+dividendenrendite+"\n"
   }
 
   def compare (that: Aktie) = {
@@ -56,8 +60,9 @@ class Aktie(
     roe+";"+ebitMarge+";"+ekQuote+";"+
     kgv5Jahre+";"+kgvAktuell+";"+
     gewinnrevisionen+";"+kursVs6Monate+";"+kursVs12Monate+";"+momentum+""+
-    epsAJ+";"+epsNJ+";"+gewinnwachstum+"\n"
+    epsAJ+";"+epsNJ+";"+gewinnwachstum+";"+
+    dividendenrendite+"\n"
   }
 
-  }
+}
 

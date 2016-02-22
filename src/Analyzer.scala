@@ -5,10 +5,13 @@ import scala.collection.mutable.ListBuffer
 
 object Analyzer {
   def main (args: Array[String]) {
-    readCSV(args(0), args(1))
-  }
+    val aktienListe: List[Aktie] = readCSV(args(0), args(1))
+    //val scoredAktienListe: List[Aktie] = calculateScore(aktienListe)
+    //displayScoredShares(scoredAktienListe)
 
-  val aktienListBuffer: ListBuffer[Aktie] = new ListBuffer[Aktie]()
+    val altScoredAktienListe: List[Aktie] = calculateAlternativeScore(aktienListe)
+    displayScoredShares(altScoredAktienListe)
+  }
 
   val meineAktien: List[String] = List(
   "547030", "884437", "508903", "511170", "851311",
@@ -35,9 +38,10 @@ object Analyzer {
   )
 
 
-  def readCSV(date: String, pathToFile: String): Unit = {
+  def readCSV(date: String, pathToFile: String): List[Aktie] = {
     val bufferedSource = io.Source.fromFile(pathToFile, "ISO-8859-1")
 
+    val aktienListBuffer: ListBuffer[Aktie] = new ListBuffer[Aktie]()
 
     for (line <- bufferedSource.getLines()) {
       val cols = line.split(";").map(_.trim)
@@ -73,50 +77,115 @@ object Analyzer {
       // Wachstum
       val gewinnwachstum = roundDouble((1 - (epsAJ / epsNJ)) * 100)
 
-      var score = 0
+      // Dividendenrendite
+      val dividendenrendite = parseDouble(cols(24))
 
-      if(roe > 20)
-        score += 1
-      if(roe < 10)
-        score -= 1
-      if(ebitMarge > 12)
-        score += 1
-      if(ebitMarge < 6)
-        score -= 1
-      if(ekQuote > 25)
-        score += 1
-      if(ekQuote < 15)
-        score -= 1
-      if(kgv5Jahre < 12)
-        score += 1
-      if(kgv5Jahre > 16)
-        score -= 1
-      if(kgvAktuell < 12)
-        score += 1
-      if(kgvAktuell > 16)
-        score -= 1
-      if(kursVs6Monate > 5)
-        score += 1
-      if(kursVs6Monate < -5)
-        score -= 1
-      if(kursVs12Monate > 5)
-        score += 1
-      if(kursVs12Monate < -5)
-        score -= 1
-      if(gewinnwachstum > 5)
-        score += 1
-      if(gewinnwachstum < -5)
-        score -= 1
-      score += momentum
+      val score = 0
 
-      val aktie: Aktie = new Aktie(datum, unternehmen, wkn, index, marktkapitalisierung, aktienkurs, roe, ebitMarge, ekQuote, epsAJ, epsNJ, kgvAktuell, kgv5Jahre, gewinnrevisionen, kursVs6Monate, kursVs12Monate, momentum, gewinnwachstum, score)
+      val aktie: Aktie = new Aktie(datum, unternehmen, wkn, index, marktkapitalisierung, aktienkurs, roe, ebitMarge, ekQuote, epsAJ, epsNJ, kgvAktuell, kgv5Jahre, gewinnrevisionen, kursVs6Monate, kursVs12Monate, momentum, gewinnwachstum, dividendenrendite, score)
       //println(aktie)
 
       aktienListBuffer += aktie
     }
 
     bufferedSource.close()
-    val aktienListe: List[Aktie] = aktienListBuffer.toList
+    aktienListBuffer.toList
+  }
+
+
+  def calculateScore(aktienListe: List[Aktie]): List[Aktie] = {
+    val aktienListBuffer: ListBuffer[Aktie] = new ListBuffer[Aktie]()
+
+    for (aktie <- aktienListe) {
+      var score = 0
+
+      if(aktie.roe > 20)
+        score += 1
+      if(aktie.roe < 10)
+        score -= 1
+      if(aktie.ebitMarge > 12)
+        score += 1
+      if(aktie.ebitMarge < 6)
+        score -= 1
+      if(aktie.ekQuote > 25)
+        score += 1
+      if(aktie.ekQuote < 15)
+        score -= 1
+      if(aktie.kgv5Jahre < 12)
+        score += 1
+      if(aktie.kgv5Jahre > 16)
+        score -= 1
+      if(aktie.kgvAktuell < 12)
+        score += 1
+      if(aktie.kgvAktuell > 16)
+        score -= 1
+      if(aktie.kursVs6Monate > 5)
+        score += 1
+      if(aktie.kursVs6Monate < -5)
+        score -= 1
+      if(aktie.kursVs12Monate > 5)
+        score += 1
+      if(aktie.kursVs12Monate < -5)
+        score -= 1
+      if(aktie.gewinnwachstum > 5)
+        score += 1
+      if(aktie.gewinnwachstum < -5)
+        score -= 1
+
+      score += aktie.momentum
+
+      aktie.score = score
+
+      aktienListBuffer += aktie
+    }
+
+    aktienListBuffer.toList
+   }
+
+  def calculateAlternativeScore(aktienListe: List[Aktie]): List[Aktie] = {
+    val aktienListBuffer: ListBuffer[Aktie] = new ListBuffer[Aktie]()
+
+    for (aktie <- aktienListe) {
+      var score = 0
+
+      if(aktie.roe > 20)
+        score += 1
+      if(aktie.roe < 10)
+        score -= 1
+      if(aktie.ebitMarge > 12)
+        score += 1
+      if(aktie.ebitMarge < 6)
+        score -= 1
+      if(aktie.ekQuote > 25)
+        score += 1
+      if(aktie.ekQuote < 15)
+        score -= 1
+      if(aktie.kgv5Jahre < 12)
+        score += 1
+      if(aktie.kgv5Jahre > 16)
+        score -= 1
+      if(aktie.kgvAktuell < 12)
+        score += 1
+      if(aktie.kgvAktuell > 16)
+        score -= 1
+      if(aktie.gewinnwachstum > 5)
+        score += 1
+      if(aktie.gewinnwachstum < -5)
+        score -= 1
+      if(aktie.dividendenrendite > 3)
+        score += 1
+      if(aktie.dividendenrendite < 1)
+        score -= 1
+
+      aktie.score = score
+
+      aktienListBuffer += aktie
+    }
+
+    aktienListBuffer.toList
+  }
+
+  def displayScoredShares(aktienListe: List[Aktie]): Unit = {
 
     // Aktien mit Scorewert >= 4
     //aktienListe.filter(p => p.score >= 4).sorted.map(f => print(f))
@@ -133,10 +202,11 @@ object Analyzer {
     //aktienListe.filter(p => meineAktien.contains(p.wkn)).map(f => print(f))
     //aktienListe.filter(p => meineAktien.contains(p.wkn)).sorted.map(f => print(f.toCsvString()))
 
-    aktienListe.filter(p => watchlist.contains(p.wkn)).sorted.map(f => print(f))
+    //aktienListe.filter(p => watchlist.contains(p.wkn)).sorted.map(f => print(f))
 
     // Einzelwerte überprüfen
-    //aktienListe.filter(p => p.wkn.equals("621993")).map(f => print(f))
+    aktienListe.filter(p => p.wkn.equals("587530")).map(f => print(f))
+
   }
 
   def parseDouble(s: String): Double = {
